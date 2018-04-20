@@ -20,8 +20,7 @@ data TcpGraph = TcpGraph {
 } deriving (Show, Data, Typeable)
 
 modePacketSize = "packetsize"
-maxPacketSize :: Double
-maxPacketSize = 1500.0
+maxPacketSize = 1514
 
 tcpGraph = TcpGraph {
     iface = def &= name "i",
@@ -38,7 +37,7 @@ main = do
     dev <- if iface == ""
         then findDev
         else return iface
-    p <- openLive dev 1500 True 1000
+    p <- openLive dev 10000 True 1000
     let f = foldr (\x y -> concat [x, " ", y]) "" filt
     setFilter p f True 0
     loop p (-1) $ drawPacket mode
@@ -58,6 +57,8 @@ dotsForSize n = do
     window <- TSIZE.size
     case window of
         Just TSIZE.Window {..} -> do
-            let dots = round $ fromIntegral width * (fromIntegral n / maxPacketSize)
-            putStrLn $ concat $ replicate dots "*"
+            let dots = floor $ fromIntegral width * (fromIntegral n / maxPacketSize)
+            let remdots = dots - length (show n)
+            let line = show n : replicate remdots "*"
+            putStrLn $ concat line
         Nothing                -> printErr "Not a tty!" >> exitFailure
