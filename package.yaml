@@ -33,3 +33,5 @@ executables:
     dependencies:
     - pcap
     - cmdargs
+    - terminal-size
+    - unix
